@@ -13,6 +13,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      host: '0.0.0.0',
+
+      allowedHosts: env.VITE_ALLOWED_HOSTS
+        ? env.VITE_ALLOWED_HOSTS.split(',')
+        : ['localhost'],
+
       port: Number(env.VITE_PORT),
       proxy: {
         '/api': {
