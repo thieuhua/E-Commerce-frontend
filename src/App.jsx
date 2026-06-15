@@ -9,32 +9,37 @@ import useAuthStore from '@/stores/authStore'
 import useCartStore from '@/stores/cartStore'
 
 import { MainLayout, AuthLayout }     from '@/components/layout'
+import AdminLayout                    from '@/components/admin/AdminLayout'
 import { ProtectedRoute, GuestRoute } from '@/components/common/RouteGuards'
 import LoadingScreen                  from '@/components/common/LoadingScreen'
 
+// Customer pages
 import HomePage          from '@/pages/customer/HomePage'
 import ProductListPage   from '@/pages/customer/ProductListPage'
 import ProductDetailPage from '@/pages/customer/ProductDetailPage'
 import CartPage          from '@/pages/customer/CartPage'
 import CheckoutPage      from '@/pages/customer/CheckoutPage'
-import { OrderListPage, OrderDetailPage } from '@/pages/customer/OrderPages'
+import { OrderListPage, OrderDetailPage }             from '@/pages/customer/OrderPages'
 import { ProfilePage, AddressPage, ChangePasswordPage } from '@/pages/customer/ProfilePages'
-import { LoginPage, RegisterPage }        from '@/pages/auth/AuthPages'
-import { NotFoundPage, ErrorPage }        from '@/pages/error/ErrorPages'
+import { LoginPage, RegisterPage }                    from '@/pages/auth/AuthPages'
+import { NotFoundPage, ErrorPage }                    from '@/pages/error/ErrorPages'
+
+// Admin pages
+import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
+import AdminProductPage   from '@/pages/admin/AdminProductPage'
+import AdminOrderPage     from '@/pages/admin/AdminOrderPage'
+import AdminUserPage      from '@/pages/admin/AdminUserPage'
 
 // ── QueryClient ───────────────────────────────────────────────
 const qc = new QueryClient({
   defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+    queries: { staleTime: 60_000, retry: 1, refetchOnWindowFocus: false },
   },
 })
 
 // ── Router ────────────────────────────────────────────────────
 const router = createBrowserRouter([
+  // ── Public / Customer ──────────────────────────────────────
   {
     path: '/',
     element: <MainLayout />,
@@ -53,6 +58,8 @@ const router = createBrowserRouter([
       { path: '*',            element: <NotFoundPage /> },
     ],
   },
+
+  // ── Auth ───────────────────────────────────────────────────
   {
     element: <AuthLayout />,
     children: [
@@ -60,9 +67,30 @@ const router = createBrowserRouter([
       { path: 'register', element: <GuestRoute><RegisterPage /></GuestRoute> },
     ],
   },
+
+  // ── Admin ──────────────────────────────────────────────────
+  {
+    path: '/admin',
+    element: (
+      <ProtectedRoute roles={['admin', 'staff']}>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true,           element: <AdminDashboardPage /> },
+      { path: 'products',      element: <AdminProductPage /> },
+      { path: 'orders',        element: <AdminOrderPage /> },
+      { path: 'users',         element: (
+          <ProtectedRoute roles={['admin']}>
+            <AdminUserPage />
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
 ])
 
-// ── Bootstrap wrapper ─────────────────────────────────────────
 const Bootstrap = () => {
   const [booting, setBooting]  = useState(true)
   const restoreSession = useAuthStore((s) => s.restoreSession)
@@ -90,7 +118,7 @@ const Bootstrap = () => {
   return <RouterProvider router={router} />
 }
 
-// ── App root ──────────────────────────────────────────────────
+// ── App ───────────────────────────────────────────────────────
 const App = () => (
   <QueryClientProvider client={qc}>
     <ThemeProvider theme={theme}>

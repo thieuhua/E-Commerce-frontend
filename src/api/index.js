@@ -77,3 +77,40 @@ export const reviewApi = {
 export const couponApi = {
   check: (code, subtotal) => api.get('/coupons/check', { params: { code, subtotal } }),
 }
+
+// ── Admin ─────────────────────────────────────────────────────
+export const adminApi = {
+  // Stats
+  stats: () => api.get('/admin/stats'),
+
+  // Products
+  listProducts:  (params)      => api.get('/products', { params }),
+  createProduct: (formData)    => api.post('/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  updateProduct: (id, formData)=> api.patch(`/products/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteProduct: (id)          => api.delete(`/products/${id}`),
+  deleteImage:   (pid, imgId)  => api.delete(`/products/${pid}/images/${imgId}`),
+
+  // Orders
+  listOrders:    (params)      => api.get('/orders', { params }),
+  getOrder:      (id)          => api.get(`/orders/my/${id}`),
+  updateOrderStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
+
+  // Shipment
+  createShipment: (orderId, data) => api.post(`/shipments/order/${orderId}`, data),
+  updateShipment: (shipId, data)  => api.patch(`/shipments/${shipId}/status`, data),
+
+  // Payment
+  confirmPayment: (payId, data)   => api.patch(`/payments/${payId}/confirm`, data),
+
+  // Users
+  listUsers:  (params)         => api.get('/users', { params }),
+  setUserRole:(id, role)       => api.patch(`/users/${id}/role`, { role }),
+
+  // Categories & Brands
+  createCategory: (data)       => api.post('/categories', data),
+  updateCategory: (id, data)   => api.patch(`/categories/${id}`, data),
+  deleteCategory: (id)         => api.delete(`/categories/${id}`),
+  createBrand:    (data)       => api.post('/brands', data),
+  updateBrand:    (id, data)   => api.patch(`/brands/${id}`, data),
+  deleteBrand:    (id)         => api.delete(`/brands/${id}`),
+}

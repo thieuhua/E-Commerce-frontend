@@ -44,7 +44,6 @@ const HomePage = () => {
 
   const newest   = newData?.data?.data ?? []
   const cheapest = saleData?.data?.data ?? []
-
   return (
     <Box>
       {/* ── Hero ── */}
